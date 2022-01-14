@@ -6,7 +6,7 @@
   </head>
   <body>
     <code id="debug"></code>
-    <h1>v1.0.0 <b id="lastestId"></b></h1>
+    <h1>v1.1.0 <b id="lastestId"></b></h1>
     <button onclick="ExecuteCode()">Execute</button>
     <button id="InitiateCallBtn" onclick="vidCall.call(prompt('Enter id',vidCall.userList[0].id))" disabled="true">Initiate Call</button>
     <button id="HangupBtn" onclick="vidCall.hangup()" disabled="true">Hangup</button>
@@ -34,9 +34,11 @@
         vidCall.onGotCamera = function(stream) {
           document.getElementById("myVideo").srcObject = stream;
         };
-        vidCall.onCallSuccess = function(data) {
-          alert("Successful meet with "+data.from);
+        vidCall.onGotRemoteCamera = function(stream) {
           document.getElementById("yourVideo").srcObject = data.stream;
+        }
+        vidCall.onCallSuccess = function(user) {
+          alert("Successful meet with "+user.name);
           document.getElementById("HangupBtn").disabled = false;
           document.getElementById("SendMessageBtn").disabled = false;
         };

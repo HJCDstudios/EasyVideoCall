@@ -1,15 +1,8 @@
 /*
-Easy Video Call v1.0
-Originally Easy WebRTC
-Features:
-Easily create video call sessions
-you can use your own constraints for the camera
-Easily get the list of active people
-Disadvantages:
-You will need your own server like a websocket or use droidscript's UDP
-PRONE TO SHIFFING (only sending and receiving calls) because of the fact that the messages are not encrypted but you can do that yourself
+Easy Video Call v1.1.0
+
+TO DO: fix hang up bug
 */
-// it works but at what cost
 class EasyVideoCall {
   constructor() {
     this.localCamera = null;
@@ -34,8 +27,8 @@ class EasyVideoCall {
     this.onCallFinished = function() {
       console.log("Call finished");
     };
-    this.onCallSuccess = function(data) {
-      console.log("Call success: "+JSON.stringify(data));
+    this.onCallSuccess = function(user,stream) {
+      console.log("Call success: "+JSON.stringify(user));
     };
     this.onCallFailed = function(reason) {
       console.log("Call Failed: "+reason);
@@ -48,6 +41,9 @@ class EasyVideoCall {
       console.log("Send: "+JSON.stringify(dat));
     };
     this.onGotCamera = function(stream) {
+      
+    };
+    this.onGotRemoteCamera = function(stream) {
       
     };
     this.onMessage = function(user,msg) {
@@ -75,10 +71,7 @@ class EasyVideoCall {
     var that = this;
     rtc.addEventListener("track",function(track) {
       that.remoteCamera = track.streams[0];
-      that.onCallSuccess({
-        "stream":track.streams[0],
-        "from":that.cache.HandshakingWith || that.remoteUser.id
-      });
+      that.onGotRemoteCamera(track.streams[0]);
     });
     rtc.oniceconnectionstatechange = function() {
       var state = this.iceConnectionState;
@@ -210,20 +203,22 @@ class EasyVideoCall {
           this.rtc.setLocalDescription(ab);
         break;
         case "Answer":
-          if (data.user.id != this.cache.HandshakingWith || this.callState != "calling") return;
+          if (data.user.id != this.cache.HandshakingWith || this.callState != "calling" && this.cache.CallTimeout) return;
           this.remoteUser = data.user;
           await this.rtc.setRemoteDescription(data.Answer);
           this.callState = "incall";
           this.cache.HandshakingWith = "";
           this.sendData({"user":this.localUser,"Type":"CallAnswered","to":data.user.id});
           clearTimeout(this.cache.CallTimeout);
+          this.onCallSuccess(data.user);
         break;
         case "CallAnswered":
-          if (data.user.id != this.cache.HandshakingWith || this.callState != "handshaking") return;
+          if (data.user.id != this.cache.HandshakingWith || this.callState != "handshaking" && this.cache.CallTimeout) return;
           this.callState = "incall";
           this.remoteUser = data.user;
           this.cache.HandshakingWith = "";
           clearTimeout(this.cache.CallTimeout);
+          this.onCallSuccess(data.user);
         break;
         case "Hangup":
           if (data.user.id != this.remoteUser.id || this.callState != "incall") return;
@@ -238,6 +233,7 @@ class EasyVideoCall {
             "Constraints":this.cache.Constraints
           };
           this.stopCamera();
+          this.channel.close();//maybe close the channel
           this.createRTC();
           this.onCallFinished();
         break;
@@ -295,6 +291,7 @@ class EasyVideoCall {
   hangup() {
     if (this.callState != "incall") return;
     this.channel.send(JSON.stringify({"user":this.localUser,"to":this.remoteUser,"Type":"Hangup"}));
+    this.channel.close();
     this.stopCamera();
     this.createRTC();
     this.callState = "standby";
@@ -310,6 +307,7 @@ class EasyVideoCall {
       if (this.callState == "incall") {
         this.channel.send(JSON.stringify({"user":this.localUser,"to":this.remoteUser.id,"Type":"Hangup"}));
       }
+      this.channel.close();
       this.callState = "standby";
       this.remoteCamera = null;
       this.remoteUser = {"id":"","name":""};
