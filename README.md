@@ -1,4 +1,4 @@
-<img src=ĺhttps://img.shields.io/badge/Version-1.0.1-brightgreen"/>
+<iframe src="https://img.shields.io/badge/Version-1.0.1-brightgreen"/>
 # EasyVideoCall
 A Javascript library for easy video conferencing using webrtc
 
