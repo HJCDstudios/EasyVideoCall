@@ -25,6 +25,13 @@ vidCall.onMessage = function(user,msg) {
 vidCall.onNewUser = function(user) {
   //this callback is called everytime when a user sends a Scan or ScanAnswer type and it is new
 };
+vidCall.onCallSuccess = function(user,stream) {
+  //handle the remote stream
+  alert("Successful meet with "+user.name);
+};
+vidCall.onCallFailed = function(why) {
+  alert("Call failed: "+why);
+};
 vidCall.localUser.name = "My Cool Name";
 vidCall.init({"video":true,"audio":false});
 /* this handles necessary components to start
