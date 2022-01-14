@@ -6,7 +6,7 @@ A Javascript library for easy video conferencing using webrtc
 # How to use
 Just include it to your html file like this:<br/>
 ```html
-&lt;script type="text/javascript" src="easyvideocall.js"&gt;&lt;/script&gt;
+<script type="text/javascript" src="easyvideocall.js"></script>
 ```
 Then use it like this:<br/>
 ```javascript
