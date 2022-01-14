@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/Version-1.0.1-brightgreen)
+![version](https://img.shields.io/badge/Version-1.1.0-brightgreen)
 ![build](https://img.shields.io/badge/Build-Kinda%20Failing-yellow)
 # EasyVideoCall
 A Javascript library for easy video conferencing using webrtc
