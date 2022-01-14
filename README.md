@@ -1,12 +1,15 @@
 ![version](https://img.shields.io/badge/Version-1.0.1-brightgreen)
+![build](https://img.shields.io/badge/Build-Kinda%20Failing-yellow)
 # EasyVideoCall
 A Javascript library for easy video conferencing using webrtc
 
 # How to use
 Just include it to your html file like this:<br/>
-<code>&lt;script type="text/javascript" src="easyvideocall.js"&gt;&lt;/script&gt;</code><br/>
+```html
+&lt;script type="text/javascript" src="easyvideocall.js"&gt;&lt;/script&gt;
+```
 Then use it like this:<br/>
-<code><pre>
+```javascript
 const vidCall = new EasyVideoCall();
 vidCall.onGotCamera = function(stream) {
   // handle stream
@@ -27,7 +30,9 @@ vidCall.init({"video":true,"audio":false});
 /* this handles necessary components to start
 The first parameter is a MediaStream Constraints
 */
-</pre></code>
+```
 
 ## To make a call
-<code>vidCall.call(userId)</code>
+```javascript
+vidCall.call(userId);
+```
