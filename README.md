@@ -60,3 +60,4 @@ ws.onopen = function() {
   vidCall.init();
 };
 ```
+Also this is still in early development so expect some bugs
