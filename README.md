@@ -36,3 +36,20 @@ The first parameter is a MediaStream Constraints
 ```javascript
 vidCall.call(userId);
 ```
+
+## Remember
+You need your own server like a websocket,
+This is an example code on how you can use your own server:
+```javascript
+ws = new WebSocket();
+ws.onmessage = function(event) {
+  vidCall.onReceive(event.data);
+};
+ws.onopen = function() {
+  console.log("Websocket opened");
+  vidCall.sendData = function(data) {
+    ws.send(JSON.stringify(data);
+  };
+  vidCall.init();
+};
+```
