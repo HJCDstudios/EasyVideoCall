@@ -1,11 +1,9 @@
-# Here is the change log for beta v1.1.0
-- Fixed bug when the class does not provide a timeout parameter
-- Added Disconnect is now called when stopped
-- Fixed bug when cancel call was not working
-- Fixed bug where send message is not properly working
-- Updated the "to" verification
-- Added a droidscript example server
-- This changelog
-- Added a docs file
-- And some other bugs fixes
-- Added Callstate button to testing area
+# Here is the change log for alpha v1.0.0
+
+- This is the first alpha version of the library
+
+# Here is the change log for beta v1.2.0
+- Fixed OnCallSuccess bug (the bug was in the connection state)
+- Added some "things"
+- "Fixed" hanged up bug
+- NOW STABLE and ready for an alpha release

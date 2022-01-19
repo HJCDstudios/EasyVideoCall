@@ -1,7 +1,13 @@
-![version](https://img.shields.io/badge/Beta-v1.1.0-brightgreen)
+![vAlpha](https://img.shields.io/badge/Alpha-v1.0.0-brightgreen)
+![vBeta](https://img.shields.io/badge/Beta-v1.2.0-brightgreen)
 
 # EasyVideoCall
 A Javascript library for easy video conferencing using webrtc
+
+# What's new (alpha)?
+
+a STABLE VERSION or an alpha version of a library, why is this special? Because
+it has less bugs!
 
 # How to use
 Just include it to your html file like this:<br/>

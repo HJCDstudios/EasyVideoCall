@@ -168,3 +168,7 @@ vidCall.sendMessage("hello dale","unique id",false);//sends a message to dale
 ## stop();
 
 This stops the class and it's components.
+
+# Beta docs
+
+Under construction
