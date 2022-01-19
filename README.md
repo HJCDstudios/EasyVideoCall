@@ -1,5 +1,5 @@
-![version](https://img.shields.io/badge/Version-1.1.0-brightgreen)
-![build](https://img.shields.io/badge/Build-Kinda%20Failing-yellow)
+![version](https://img.shields.io/badge/Beta-v1.1.0-brightgreen)
+
 # EasyVideoCall
 A Javascript library for easy video conferencing using webrtc
 
@@ -14,6 +14,9 @@ const vidCall = new EasyVideoCall();
 vidCall.onGotCamera = function(stream) {
   // handle stream
 };
+vidCall.onGotRemoteCamera = function(stream) {
+  //handle the stream from remote user.
+};
 vidCall.onCall = function(user) {
   // handle incoming calls, return true to answer and vice versa 
   return confirm("Answer "+user.name+"?");
@@ -25,7 +28,7 @@ vidCall.onMessage = function(user,msg) {
 vidCall.onNewUser = function(user) {
   //this callback is called everytime when a user sends a Scan or ScanAnswer type and it is new
 };
-vidCall.onCallSuccess = function(user,stream) {
+vidCall.onCallSuccess = function(user) {
   //handle the remote stream
   alert("Successful meet with "+user.name);
 };
@@ -48,7 +51,7 @@ vidCall.call(userId);
 You need your own server like a websocket,
 This is an example code on how you can use your own server:
 ```javascript
-ws = new WebSocket();
+ws = new WebSocket("wss://example.com");
 ws.onmessage = function(event) {
   vidCall.onReceive(event.data);
 };

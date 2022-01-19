@@ -1,7 +1,8 @@
 /*
 Easy Video Call v1.1.0
 
-TO DO: fix hang up bug
+TO DO: fix onCallSuccess bug, fix hang up bug
+follow up: caller does not receive the CallAnswered type
 */
 class EasyVideoCall {
   constructor() {
@@ -127,7 +128,7 @@ class EasyVideoCall {
     try {
       var that = this;
       var data = typeof msg=="string"?JSON.parse(msg):msg;
-      if (["Scan","Disconnected","Message"].indexOf(data.Type) > -1) {
+      if (["Scan","Disconnected","Message"].indexOf(data.Type) > -1 && !data.to) {
         
       } else if (["Offer","Answer","Message","Decline","Scan","ScanAnswer","Disconnected","Hangup","InAnotherCall","CallAnswered"].indexOf(data.Type) == -1) {
         return;
@@ -141,10 +142,16 @@ class EasyVideoCall {
       switch(data.Type) {
         case "Scan":
           this.sendData({"user":this.localUser,"to":data.user.id,"Type":"ScanAnswer"});
-          if (idList.indexOf(data.user.id) == -1) this.onNewUser(data.user); this.userList.push(data.user);
+          if (idList.indexOf(data.user.id) == -1) {
+            this.onNewUser(data.user);
+            this.userList.push(data.user);
+          }
         break;
         case "ScanAnswer":
-          if (idList.indexOf(data.user.id) == -1) this.onNewUser(data.user); this.userList.push(data.user);
+          if (idList.indexOf(data.user.id) == -1) {
+            this.onNewUser(data.user);
+            this.userList.push(data.user);
+          }
         break;
         case "Disconnected":
           if (idList.indexOf(data.user.id) == -1) return;
@@ -203,22 +210,25 @@ class EasyVideoCall {
           this.rtc.setLocalDescription(ab);
         break;
         case "Answer":
-          if (data.user.id != this.cache.HandshakingWith || this.callState != "calling" && this.cache.CallTimeout) return;
+          if (data.user.id != this.cache.HandshakingWith || this.callState != "calling") return;
           this.remoteUser = data.user;
           await this.rtc.setRemoteDescription(data.Answer);
           this.callState = "incall";
           this.cache.HandshakingWith = "";
           this.sendData({"user":this.localUser,"Type":"CallAnswered","to":data.user.id});
           clearTimeout(this.cache.CallTimeout);
+          this.cache.CallTimeout = null;
           this.onCallSuccess(data.user);
         break;
         case "CallAnswered":
-          if (data.user.id != this.cache.HandshakingWith || this.callState != "handshaking" && this.cache.CallTimeout) return;
+          alert("Received CallAnswered:\n"+data.user.id+":"+this.cache.HandshakingWith+"\nEqual: "+(data.user.id == this.cache.HandshakingWith));
+          if (data.user.id != this.cache.HandshakingWith || this.callState != "handshaking" || !this.cache.CallTimeout) return;
+          this.onCallSuccess(data.user);
           this.callState = "incall";
           this.remoteUser = data.user;
           this.cache.HandshakingWith = "";
           clearTimeout(this.cache.CallTimeout);
-          this.onCallSuccess(data.user);
+          this.cache.CallTimeout = null;
         break;
         case "Hangup":
           if (data.user.id != this.remoteUser.id || this.callState != "incall") return;
@@ -243,7 +253,7 @@ class EasyVideoCall {
       this.callState = "standby";
       this.cache.HandshakingWith = "";
       this.remoteUser = {"id":"","name":""};
-      console.warn(e.toString()+"\n"+msg);
+      alert(e.toString()+"\n"+msg);
     }
   }
   async call(who) {
@@ -268,7 +278,7 @@ class EasyVideoCall {
         that.cache.CallTimeout = setTimeout(function() {
           that.callState = "standby";
           delete that.cache.CallTimeout;
-          that.onCallFailed();
+          that.onCallFailed("timedout");
         },that.callTimeout);
       }
     };
@@ -278,7 +288,7 @@ class EasyVideoCall {
   cancelCall() {
     if (this.callState != "calling") return;
     this.callState = "standby";
-    this.sendData({"user":this.localUser,"to":this.remoteUser.id,"Type":"CancelCall"});
+    this.sendData({"user":this.localUser,"to":this.cache.HandshakingWith,"Type":"CancelCall"});
     try {
       clearTimeout(this.cache.CallTimeout);
     } catch(e) {}
@@ -299,14 +309,24 @@ class EasyVideoCall {
     this.remoteCamera = null;
     this.onCallFinished();
   }
-  sendMessage(msg,who) {
-    this.channel.send(JSON.stringify({"user":this.localUser,"to":who?who:this.remoteUser,"Type":"Message","Message":msg}));
+  sendMessage(msg,to,inchannel=true) {
+    var toSend = {
+      "user":this.localUser,
+      "Type":"Message",
+      "Message":msg
+    };
+    if (to) {
+      toSend.to = to;
+    }
+    toSend = JSON.stringify(toSend);
+    inchannel?this.channel.send(toSend):this.sendMessage(JSON.parse(toSend));
   }
   stop() {
     try {
       if (this.callState == "incall") {
         this.channel.send(JSON.stringify({"user":this.localUser,"to":this.remoteUser.id,"Type":"Hangup"}));
       }
+      this.sendMessage({"user":this.localUser,"Type":"Disconnected"});
       this.channel.close();
       this.callState = "standby";
       this.remoteCamera = null;
